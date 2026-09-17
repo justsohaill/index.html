@@ -1148,6 +1148,9 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
         detectTechStack(companyUrl),
       ]);
 
+      window._briefData = d;
+      window._briefTechStack = techStack;
+
       const briefEl = document.getElementById('brief');
       briefEl.style.display = 'block';
       document.getElementById('clearBtn').style.display = '';
@@ -1166,6 +1169,10 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
             <button class="btn btn-secondary" onclick="copyBrief()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copy
+            </button>
+            <button class="btn btn-primary" onclick="saveMarkdown()" id="savemdBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Save .md
             </button>
           </div>
         </div>
@@ -1378,6 +1385,186 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
 
       btn.disabled = false;
       btn.innerHTML = 'Generate Research Brief';
+    }
+
+    function generateMarkdown(d, techStack) {
+      const bar = (score) => {
+        const filled = Math.round(score / 10);
+        return '█'.repeat(filled) + '░'.repeat(10 - filled) + ' ' + score + '%';
+      };
+
+      const stripHighlight = (s) => s.replace(/<span class="highlight">(.*?)<\/span>/g, '**$1**');
+
+      const lines = [
+        `# ${d.prospect.fullName}`,
+        ``,
+        `> **${d.prospect.title}** at **${d.company.name}**`,
+        `> Generated ${d.date} | Sources: LinkedIn, ${d.company.domain}`,
+        ``,
+        `---`,
+        ``,
+        `## Prospect Profile`,
+        ``,
+        `| Field | Detail |`,
+        `|-------|--------|`,
+        `| **Name** | ${d.prospect.fullName} |`,
+        `| **Title** | ${d.prospect.title} |`,
+        `| **Company** | ${d.company.name} |`,
+        `| **Location** | ${d.prospect.location} |`,
+        `| **Years in Role** | ${d.prospect.yearsInRole} years |`,
+        `| **Total Experience** | ${d.prospect.totalExperience}+ years |`,
+        `| **LinkedIn** | [linkedin.com/in/${d.prospect.linkedinSlug}](${d.prospect.linkedinUrl}) |`,
+        ``,
+        `---`,
+        ``,
+        `## Company Overview`,
+        ``,
+        `| Field | Detail |`,
+        `|-------|--------|`,
+        `| **Company** | ${d.company.name} |`,
+        `| **Website** | [${d.company.domain}](${d.company.url}) |`,
+        `| **Industry** | ${d.company.industry} |`,
+        `| **Company Size** | ${d.company.size} employees |`,
+        `| **Est. Revenue** | ${d.company.revenue} |`,
+        `| **Stage** | ${d.company.stage} |`,
+        `| **Founded** | ${d.company.founded} |`,
+        ``,
+        `---`,
+        ``,
+        `## Prospect Fit Scores`,
+        ``,
+        `| Metric | Score |`,
+        `|--------|-------|`,
+        `| ICP Fit | ${bar(d.brief.fitScore)} |`,
+        `| Buying Urgency | ${bar(d.brief.urgencyScore)} |`,
+        `| Accessibility | ${bar(d.brief.accessibilityScore)} |`,
+        ``,
+        `---`,
+        ``,
+        `## Key Talking Points`,
+        ``,
+        `### Industry Expertise & Pain Points`,
+        `${d.prospect.firstName}'s role as ${d.prospect.title} in the ${d.company.industry} space means they likely face challenges around scaling operations, optimizing team productivity, and managing technical debt. Lead with questions about their current tech stack and where bottlenecks occur.`,
+        ``,
+        `### Company Growth Stage Alignment`,
+        `At ${d.company.stage} with ${d.company.size} employees, ${d.company.name} is likely prioritizing go-to-market acceleration and operational efficiency. Position your solution as enabling their next phase of growth without proportional headcount increases.`,
+        ``,
+        `### Competitive Positioning`,
+        `Companies in the ${d.company.industry} vertical at ${d.company.name}'s stage are typically evaluating or replacing incumbent solutions. Reference relevant case studies from similar-sized ${d.company.industry} companies to build credibility.`,
+        ``,
+        `---`,
+        ``,
+        `## Role & Industry Pain Points`,
+        ``,
+        `> Likely challenges for a **${d.prospect.title}** in **${d.company.industry}** at a ${d.company.size}-employee company`,
+        ``,
+      ];
+
+      d.painPoints.forEach(p => {
+        lines.push(`### ${p.name}`);
+        lines.push(`*${classifyRole(d.prospect.title)} · ${d.company.industry}*`);
+        lines.push(``);
+        lines.push(p.desc);
+        lines.push(``);
+      });
+
+      lines.push(`---`);
+      lines.push(``);
+      lines.push(`## Tech Stack`);
+      lines.push(`*Source: ${d.company.domain}${techStack.detected.length > 0 ? ' (detected from website)' : ' (inferred — could not scan website)'}*`);
+      lines.push(``);
+
+      lines.push(`| Technology | Category | Source |`);
+      lines.push(`|------------|----------|--------|`);
+      techStack.all.forEach(t => {
+        lines.push(`| ${t.name} | ${t.cat} | ${t.detected ? 'Detected' : 'Inferred'} |`);
+      });
+
+      lines.push(``);
+      lines.push(`---`);
+      lines.push(``);
+      lines.push(`## Recent News & Signals`);
+      lines.push(``);
+
+      d.news.forEach(n => {
+        lines.push(`- **[${n.dateLabel}]** ${n.title} \`${n.type}\``);
+        lines.push(`  ${n.desc}`);
+      });
+
+      lines.push(``);
+      lines.push(`---`);
+      lines.push(``);
+      lines.push(`## Personalized Outreach Angle`);
+      lines.push(``);
+      lines.push(`### Recommended Hooks`);
+      lines.push(``);
+
+      d.outreach.hooks.forEach((h, i) => {
+        lines.push(`**${i + 1}. ${h.title}**`);
+        lines.push(h.desc);
+        lines.push(``);
+      });
+
+      lines.push(`### Draft Message`);
+      lines.push(``);
+      lines.push(`**Subject:** ${d.outreach.subjectLine}`);
+      lines.push(``);
+      lines.push(`---`);
+      lines.push(``);
+
+      const msgPlain = stripHighlight(d.outreach.messageTemplate)
+        .replace(/<[^>]*>/g, '')
+        .replace(/\n{3,}/g, '\n\n');
+      lines.push(msgPlain);
+
+      lines.push(``);
+      lines.push(`---`);
+      lines.push(``);
+      lines.push(`## Research Checklist`);
+      lines.push(``);
+      lines.push(`- [ ] Review their recent LinkedIn posts and activity`);
+      lines.push(`- [ ] Check for mutual connections to request warm intro`);
+      lines.push(`- [ ] Identify recent company press releases or funding news`);
+      lines.push(`- [ ] Review their conference talks or published articles`);
+      lines.push(`- [ ] Check Glassdoor/hiring pages for tech stack clues`);
+      lines.push(`- [ ] Research competitors and their positioning`);
+      lines.push(``);
+      lines.push(`---`);
+      lines.push(``);
+      lines.push(`## Notes`);
+      lines.push(``);
+      lines.push(`_Add your personal notes here..._`);
+      lines.push(``);
+
+      return lines.join('\n');
+    }
+
+    function saveMarkdown() {
+      const d = window._briefData;
+      const techStack = window._briefTechStack;
+      if (!d) return;
+
+      const md = generateMarkdown(d, techStack);
+      const slug = d.prospect.fullName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+      const filename = `briefs/${slug}.md`;
+
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      const btn = document.getElementById('savemdBtn');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Saved!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
     }
 
     function clearAll() {
