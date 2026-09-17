@@ -1157,7 +1157,7 @@ Guidelines:
 
         d._websiteFetched = websiteFetched;
         d._companyDomain = parseCompanyDomain(companyUrl);
-        d._companyUrl = companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl;
+        d._companyUrl = companyUrl ? (companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl) : '';
         d._linkedinUrl = linkedinUrl;
         d._date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
