@@ -24,6 +24,9 @@
       --warning-bg: #fffbeb;
       --tag-bg: #e8edf5;
       --tag-text: #3b4a6b;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #991b1b;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
       --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
@@ -51,6 +54,9 @@
         --warning-bg: #1a1505;
         --tag-bg: #2d3140;
         --tag-text: #a0b4d4;
+        --error-bg: #2d1b1b;
+        --error-border: #5c2020;
+        --error-text: #fca5a5;
         --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
         --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
         --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
@@ -76,6 +82,9 @@
       --warning-bg: #1a1505;
       --tag-bg: #2d3140;
       --tag-text: #a0b4d4;
+      --error-bg: #2d1b1b;
+      --error-border: #5c2020;
+      --error-text: #fca5a5;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
       --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
@@ -112,7 +121,7 @@
     header p {
       color: var(--text-secondary);
       font-size: 15px;
-      max-width: 480px;
+      max-width: 520px;
       margin: 0 auto;
     }
 
@@ -125,16 +134,57 @@
       margin-bottom: 32px;
     }
 
+    .settings-panel {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-panel summary {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+
+    .settings-panel[open] summary {
+      margin-bottom: 12px;
+    }
+
+    .settings-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+
+    @media (max-width: 640px) {
+      .settings-row { grid-template-columns: 1fr; }
+    }
+
+    .api-key-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .api-key-group input { flex: 1; }
+
     .input-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     @media (max-width: 640px) {
       .input-row { grid-template-columns: 1fr; }
     }
+
+    .field { margin-bottom: 0; }
 
     .field label {
       display: block;
@@ -146,7 +196,7 @@
       letter-spacing: 0.5px;
     }
 
-    .field input {
+    .field input, .field select {
       width: 100%;
       padding: 10px 14px;
       border: 1px solid var(--border);
@@ -159,19 +209,41 @@
       outline: none;
     }
 
-    .field input:focus {
+    .field input:focus, .field textarea:focus, .field select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
-    .field input::placeholder {
+    .field input::placeholder, .field textarea::placeholder {
       color: var(--text-muted);
+    }
+
+    .field textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-input);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      line-height: 1.6;
+      resize: vertical;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    .field-help {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
     }
 
     .btn-row {
       display: flex;
       gap: 12px;
       align-items: center;
+      margin-top: 20px;
     }
 
     .btn {
@@ -208,6 +280,11 @@
 
     .btn-secondary:hover { background: var(--border); }
 
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+
     .spinner {
       display: inline-block;
       width: 16px;
@@ -218,9 +295,51 @@
       animation: spin 0.6s linear infinite;
     }
 
+    .spinner-lg {
+      width: 28px;
+      height: 28px;
+      border-width: 3px;
+      border-color: var(--border);
+      border-top-color: var(--accent);
+    }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    #brief { display: none; }
+    .loading-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 28px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .loading-card .spinner-lg {
+      margin: 0 auto 16px;
+    }
+
+    .loading-status {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .loading-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .error-box {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
     .brief-header {
       display: flex;
@@ -317,15 +436,22 @@
       color: var(--text-secondary);
     }
 
+    .profile-summary {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      line-height: 1.6;
+    }
+
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px 16px;
     }
 
-    .info-item {
-      padding: 6px 0;
-    }
+    .info-item { padding: 6px 0; }
 
     .info-label {
       font-size: 11px;
@@ -363,32 +489,6 @@
       border-radius: 20px;
       font-size: 12px;
       font-weight: 500;
-    }
-
-    .bullet-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .bullet-list li {
-      position: relative;
-      padding: 6px 0 6px 20px;
-      font-size: 14px;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .bullet-list li:last-child { border-bottom: none; }
-
-    .bullet-list li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 14px;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
     }
 
     .talking-point {
@@ -435,12 +535,10 @@
       font-weight: 600;
       min-width: 36px;
       text-align: right;
+      font-variant-numeric: tabular-nums;
     }
 
-    .score-item {
-      margin-bottom: 12px;
-    }
-
+    .score-item { margin-bottom: 12px; }
     .score-item:last-child { margin-bottom: 0; }
 
     .score-name {
@@ -459,33 +557,6 @@
 
     .editable:hover { background: var(--accent-light); }
     .editable:focus { background: var(--accent-light); }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .status-badge.green {
-      background: var(--success-bg);
-      color: var(--success);
-    }
-
-    .status-badge.amber {
-      background: var(--warning-bg);
-      color: var(--warning);
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
 
     .tech-grid {
       display: flex;
@@ -521,6 +592,24 @@
 
     .tech-tag.detected .tech-cat {
       color: var(--accent);
+    }
+
+    .pain-card {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pain-card:last-child { border-bottom: none; }
+
+    .pain-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .pain-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
     }
 
     .news-item {
@@ -579,34 +668,6 @@
     :root[data-theme="dark"] .news-tag.product { background: #451a03; color: #fcd34d; }
     :root[data-theme="dark"] .news-tag.press { background: #312e81; color: #c4b5fd; }
 
-    .pain-card {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .pain-card:last-child { border-bottom: none; }
-
-    .pain-card strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 2px;
-    }
-
-    .pain-card p {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .pain-card .pain-context {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-
     .outreach-card {
       background: var(--bg-section);
       border: 1px solid var(--border);
@@ -628,6 +689,7 @@
       font-size: 14px;
       line-height: 1.7;
       color: var(--text);
+      white-space: pre-line;
     }
 
     .outreach-card .outreach-body .highlight {
@@ -672,13 +734,39 @@
       color: var(--text-secondary);
     }
 
+    .source-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .source-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .source-badge.ok {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .source-badge.warn {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
     @media print {
       body { background: #fff; color: #000; font-size: 11px; }
       .input-card, header p, .brief-actions, .btn-row { display: none !important; }
       header { padding: 16px 0 8px; }
       header h1 { font-size: 18px; }
       .container { max-width: 100%; padding: 0 20px; }
-      #brief { display: block !important; }
       .brief-section { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; padding: 12px; }
       .brief-grid { gap: 8px; }
       .editable:hover, .editable:focus { background: none; }
@@ -689,22 +777,49 @@
   <div class="container">
     <header>
       <h1>Prospect Research Tool</h1>
-      <p>Generate a detailed 1-pager research brief from a LinkedIn profile and company website.</p>
+      <p>Paste a LinkedIn profile and company website to generate a real, AI-powered research brief using Claude.</p>
     </header>
 
     <div class="input-card">
-      <div class="input-row">
-        <div class="field">
-          <label for="linkedin">LinkedIn Profile URL</label>
-          <input type="url" id="linkedin" placeholder="https://linkedin.com/in/johndoe" />
+      <details id="settingsPanel" class="settings-panel">
+        <summary>API Settings</summary>
+        <div class="settings-row">
+          <div class="field">
+            <label for="apiKey">Anthropic API Key</label>
+            <div class="api-key-group">
+              <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false" />
+              <button class="btn btn-secondary btn-sm" id="toggleKey" onclick="toggleKeyVisibility()">Show</button>
+            </div>
+            <div class="field-help">Stored in your browser only. Sent only to api.anthropic.com.</div>
+          </div>
+          <div class="field">
+            <label for="model">Model</label>
+            <select id="model">
+              <option value="claude-sonnet-4-20250514">Sonnet 4 (Recommended)</option>
+              <option value="claude-haiku-3-5-20241022">Haiku 3.5 (Faster)</option>
+            </select>
+          </div>
         </div>
+      </details>
+
+      <div class="input-row">
         <div class="field">
           <label for="company">Company Website URL</label>
           <input type="url" id="company" placeholder="https://acme.com" />
         </div>
+        <div class="field">
+          <label for="linkedinUrl">LinkedIn Profile URL <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/in/johndoe" />
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="linkedinText">LinkedIn Profile Text</label>
+        <textarea id="linkedinText" rows="8" placeholder="Go to the prospect's LinkedIn profile, select all the text on the page (Ctrl+A / Cmd+A), copy it, and paste it here.
+
+This should include their name, headline, about section, experience, education, skills, etc."></textarea>
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary" id="generate" onclick="generateBrief()">
+        <button class="btn btn-primary" id="generateBtn" onclick="generateBrief()">
           Generate Research Brief
         </button>
         <button class="btn btn-secondary" id="clearBtn" onclick="clearAll()" style="display:none">
@@ -713,410 +828,258 @@
       </div>
     </div>
 
-    <div id="brief"></div>
+    <div id="error" style="display:none"></div>
+    <div id="loading" class="loading-card" style="display:none">
+      <div class="spinner spinner-lg"></div>
+      <div class="loading-status" id="loadingStatus">Preparing...</div>
+      <div class="loading-sub" id="loadingSub"></div>
+    </div>
+    <div id="brief" style="display:none"></div>
   </div>
 
   <script>
-    function parseLinkedInUrl(url) {
-      const match = url.match(/linkedin\.com\/in\/([^/?#]+)/i);
-      if (!match) return { slug: '', nameParts: [] };
-      const slug = match[1].replace(/\/$/, '');
-      const cleaned = slug.replace(/[-_]/g, ' ').replace(/\d+/g, '').trim();
-      const parts = cleaned.split(/\s+/).filter(Boolean).map(
-        w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-      );
-      return { slug, nameParts: parts };
-    }
+    const API_URL = 'https://api.anthropic.com/v1/messages';
 
-    function parseCompanyUrl(url) {
+    function init() {
       try {
-        const u = new URL(url.startsWith('http') ? url : 'https://' + url);
-        const host = u.hostname.replace(/^www\./, '');
-        const parts = host.split('.');
-        const name = parts[0];
-        const formatted = name.charAt(0).toUpperCase() + name.slice(1);
-        return { domain: host, name: formatted, url: u.href };
-      } catch {
-        return { domain: url, name: url, url: url };
-      }
-    }
-
-    function getInitials(parts) {
-      if (parts.length === 0) return '?';
-      return parts.map(p => p[0]).join('').substring(0, 2);
-    }
-
-    function randomFrom(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    function classifyRole(title) {
-      const t = title.toLowerCase();
-      if (/engineer|cto|tech|devops|architect|infrastructure/.test(t)) return 'engineering';
-      if (/product|cpo/.test(t)) return 'product';
-      if (/sales|revenue|cro|business dev/.test(t)) return 'sales';
-      if (/market|cmo|growth|brand|demand/.test(t)) return 'marketing';
-      if (/operat|coo|admin|finance|cfo/.test(t)) return 'operations';
-      return 'leadership';
-    }
-
-    function getRolePainPoints(title, industry, companyName, size) {
-      const role = classifyRole(title);
-      const painMap = {
-        engineering: {
-          'Enterprise SaaS': [
-            { name: 'Multi-tenant Architecture at Scale', desc: `As ${companyName} grows past ${size} customers, maintaining isolation, performance SLAs, and data residency across tenants becomes a top-of-mind engineering challenge.` },
-            { name: 'CI/CD Pipeline Bottlenecks', desc: 'Deployment frequency and reliability are likely pain points — long build times, flaky tests, and slow rollback procedures erode developer productivity.' },
-            { name: 'Technical Debt vs. Feature Velocity', desc: `With pressure to ship new features for enterprise customers, ${title}s in SaaS often struggle to balance refactoring legacy code with meeting product roadmap deadlines.` },
-            { name: 'Observability Gaps', desc: 'Monitoring distributed systems across microservices is increasingly complex — blind spots in tracing, logging, and alerting lead to longer incident response times.' },
-          ],
-          'FinTech': [
-            { name: 'Regulatory Compliance Engineering', desc: `${companyName}'s engineering team likely spends significant cycles on PCI-DSS, SOC 2, and evolving financial regulations, diverting resources from product innovation.` },
-            { name: 'Real-Time Transaction Processing', desc: 'Latency requirements for payment processing and fraud detection demand specialized infrastructure that is expensive to build and maintain in-house.' },
-            { name: 'Data Security & Encryption at Scale', desc: 'Managing encryption keys, tokenization, and audit trails across multiple financial products creates ongoing engineering overhead.' },
-            { name: 'Legacy System Integration', desc: 'Connecting modern APIs with legacy banking systems (SWIFT, ACH, core banking) requires brittle adapters that are expensive to maintain.' },
-          ],
-          _default: [
-            { name: 'Scaling Infrastructure Costs', desc: `As ${companyName} grows, cloud costs tend to scale faster than revenue — optimizing compute, storage, and networking spend is a persistent engineering challenge.` },
-            { name: 'Developer Experience & Productivity', desc: 'Slow feedback loops, environment setup friction, and tooling fragmentation reduce engineering velocity and contribute to attrition.' },
-            { name: 'System Reliability & Incident Management', desc: `${title}s are evaluated on uptime and MTTR — gaps in monitoring, alerting, and runbook automation make incidents more disruptive than they need to be.` },
-            { name: 'Security Posture Management', desc: 'Keeping dependencies patched, managing secrets, and implementing zero-trust across services is an ever-expanding surface area.' },
-          ],
-        },
-        product: {
-          _default: [
-            { name: 'Data-Driven Decision Making', desc: `As ${title}, getting reliable product analytics to validate hypotheses is likely a challenge — fragmented data, delayed instrumentation, and metric disagreements slow iteration.` },
-            { name: 'Cross-Functional Alignment', desc: `Coordinating engineering, design, marketing, and sales around a unified roadmap at ${companyName} requires tooling and processes that many ${size}-employee companies lack.` },
-            { name: 'Customer Feedback Loop', desc: 'Closing the loop from customer feedback to prioritized backlog items is often manual and lossy — important signals get buried in support tickets and scattered channels.' },
-            { name: 'Feature Adoption & Engagement', desc: 'Shipping features is one thing; ensuring users discover and adopt them is another — onboarding flows and in-app guidance often lag behind new releases.' },
-          ],
-        },
-        sales: {
-          _default: [
-            { name: 'Pipeline Visibility & Forecasting', desc: `${title}s at ${companyName}'s stage often struggle with inaccurate pipeline data — reps log inconsistently and forecasting models lag reality.` },
-            { name: 'Sales Cycle Compression', desc: `Enterprise deals at ${companyName} likely take longer than ideal — multi-stakeholder buying committees, procurement hurdles, and security reviews extend timelines.` },
-            { name: 'Rep Ramp Time & Enablement', desc: `Onboarding new reps to full productivity at a ${size}-employee company typically takes 6-9 months — shortening this is a direct revenue lever.` },
-            { name: 'Competitive Deal Intelligence', desc: 'Knowing when and why deals are lost to competitors is critical but often anecdotal — structured win/loss analysis is rarely systematic.' },
-          ],
-        },
-        marketing: {
-          _default: [
-            { name: 'Attribution & ROI Measurement', desc: `As ${title} at ${companyName}, proving which channels and campaigns drive revenue (not just leads) is a perennial challenge with multi-touch B2B journeys.` },
-            { name: 'Content Velocity vs. Quality', desc: `${companyName} needs a steady stream of high-quality content to feed demand gen and SEO, but maintaining quality at volume is resource-intensive.` },
-            { name: 'Sales-Marketing Alignment', desc: 'Lead handoff quality, SLA adherence, and feedback loops between marketing and sales teams are often friction points at this company stage.' },
-            { name: 'Brand Differentiation', desc: `In the crowded ${industry} market, standing out requires a distinct narrative — many companies at ${companyName}'s stage still rely on feature-based positioning.` },
-          ],
-        },
-        operations: {
-          _default: [
-            { name: 'Process Standardization', desc: `At ${size} employees, ${companyName} is likely outgrowing ad-hoc processes — standardizing workflows across teams without creating bureaucratic overhead is the balancing act.` },
-            { name: 'Vendor & Tool Consolidation', desc: 'SaaS sprawl accelerates during growth — redundant tools, fragmented data, and rising subscription costs need periodic rationalization.' },
-            { name: 'Headcount Planning & Budgeting', desc: `${title}s face pressure to do more with less — accurate headcount modeling tied to revenue targets is critical but often done in spreadsheets.` },
-            { name: 'Compliance & Risk Management', desc: `As ${companyName} scales, audit readiness, policy enforcement, and risk documentation can no longer be treated as afterthoughts.` },
-          ],
-        },
-        leadership: {
-          _default: [
-            { name: 'Strategic Prioritization', desc: `At ${companyName}'s stage, saying no is harder than saying yes — ${title}s must constantly re-evaluate resource allocation against competing strategic bets.` },
-            { name: 'Talent Retention & Culture', desc: `Maintaining the culture that made ${companyName} successful while scaling to ${size} employees requires deliberate effort and systems.` },
-            { name: 'Board & Investor Communication', desc: 'Translating operational progress into compelling narratives for stakeholders requires metrics infrastructure that many growing companies lack.' },
-            { name: 'Cross-Departmental Visibility', desc: 'As the org grows, information silos emerge — leaders lose real-time visibility into what teams are working on and where blockers exist.' },
-          ],
-        },
-      };
-
-      const rolePains = painMap[role] || painMap.leadership;
-      const industryPains = rolePains[industry] || rolePains._default;
-      return industryPains;
-    }
-
-    async function detectTechStack(url) {
-      const detected = [];
-      const inferred = [];
-
-      try {
-        const resp = await fetch(url, { mode: 'cors', signal: AbortSignal.timeout(5000) });
-        const html = await resp.text();
-        const lower = html.toLowerCase();
-
-        const signatures = [
-          { pattern: /react/i, name: 'React', cat: 'Frontend' },
-          { pattern: /vue[.\-/]/i, name: 'Vue.js', cat: 'Frontend' },
-          { pattern: /angular[.\-/@]/i, name: 'Angular', cat: 'Frontend' },
-          { pattern: /next[.\-/]/i, name: 'Next.js', cat: 'Framework' },
-          { pattern: /nuxt/i, name: 'Nuxt', cat: 'Framework' },
-          { pattern: /gatsby/i, name: 'Gatsby', cat: 'Framework' },
-          { pattern: /svelte/i, name: 'Svelte', cat: 'Frontend' },
-          { pattern: /tailwind/i, name: 'Tailwind CSS', cat: 'Styling' },
-          { pattern: /bootstrap/i, name: 'Bootstrap', cat: 'Styling' },
-          { pattern: /jquery/i, name: 'jQuery', cat: 'Library' },
-          { pattern: /webpack/i, name: 'Webpack', cat: 'Build' },
-          { pattern: /vite/i, name: 'Vite', cat: 'Build' },
-          { pattern: /cloudflare/i, name: 'Cloudflare', cat: 'CDN' },
-          { pattern: /vercel/i, name: 'Vercel', cat: 'Hosting' },
-          { pattern: /netlify/i, name: 'Netlify', cat: 'Hosting' },
-          { pattern: /aws|amazonaws/i, name: 'AWS', cat: 'Cloud' },
-          { pattern: /google.*tag.*manager|gtm\./i, name: 'Google Tag Manager', cat: 'Analytics' },
-          { pattern: /google.*analytics|ga\(/i, name: 'Google Analytics', cat: 'Analytics' },
-          { pattern: /segment\.(com|io)/i, name: 'Segment', cat: 'Analytics' },
-          { pattern: /mixpanel/i, name: 'Mixpanel', cat: 'Analytics' },
-          { pattern: /amplitude/i, name: 'Amplitude', cat: 'Analytics' },
-          { pattern: /hotjar/i, name: 'Hotjar', cat: 'Analytics' },
-          { pattern: /intercom/i, name: 'Intercom', cat: 'Support' },
-          { pattern: /drift/i, name: 'Drift', cat: 'Chat' },
-          { pattern: /zendesk/i, name: 'Zendesk', cat: 'Support' },
-          { pattern: /hubspot/i, name: 'HubSpot', cat: 'CRM/Marketing' },
-          { pattern: /salesforce|pardot/i, name: 'Salesforce', cat: 'CRM' },
-          { pattern: /marketo/i, name: 'Marketo', cat: 'Marketing' },
-          { pattern: /stripe/i, name: 'Stripe', cat: 'Payments' },
-          { pattern: /shopify/i, name: 'Shopify', cat: 'E-Commerce' },
-          { pattern: /wordpress|wp-content/i, name: 'WordPress', cat: 'CMS' },
-          { pattern: /webflow/i, name: 'Webflow', cat: 'CMS' },
-          { pattern: /contentful/i, name: 'Contentful', cat: 'CMS' },
-          { pattern: /sanity\.io/i, name: 'Sanity', cat: 'CMS' },
-          { pattern: /prismic/i, name: 'Prismic', cat: 'CMS' },
-          { pattern: /sentry/i, name: 'Sentry', cat: 'Monitoring' },
-          { pattern: /datadog/i, name: 'Datadog', cat: 'Monitoring' },
-          { pattern: /optimizely/i, name: 'Optimizely', cat: 'Experimentation' },
-          { pattern: /launchdarkly/i, name: 'LaunchDarkly', cat: 'Feature Flags' },
-          { pattern: /algolia/i, name: 'Algolia', cat: 'Search' },
-          { pattern: /twilio/i, name: 'Twilio', cat: 'Communications' },
-          { pattern: /auth0/i, name: 'Auth0', cat: 'Auth' },
-          { pattern: /okta/i, name: 'Okta', cat: 'Auth' },
-          { pattern: /recaptcha/i, name: 'reCAPTCHA', cat: 'Security' },
-          { pattern: /cloudinary/i, name: 'Cloudinary', cat: 'Media' },
-          { pattern: /typeform/i, name: 'Typeform', cat: 'Forms' },
-        ];
-
-        for (const sig of signatures) {
-          if (sig.pattern.test(html)) {
-            detected.push({ name: sig.name, cat: sig.cat, detected: true });
-          }
+        const savedKey = localStorage.getItem('prospect_tool_api_key') || '';
+        const savedModel = localStorage.getItem('prospect_tool_model') || 'claude-sonnet-4-20250514';
+        document.getElementById('apiKey').value = savedKey;
+        document.getElementById('model').value = savedModel;
+        if (savedKey) {
+          document.getElementById('settingsPanel').removeAttribute('open');
+        } else {
+          document.getElementById('settingsPanel').setAttribute('open', '');
         }
+      } catch (e) {}
 
-        const metaGen = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']([^"']+)["']/i);
-        if (metaGen) {
-          detected.push({ name: metaGen[1], cat: 'Platform', detected: true });
-        }
-      } catch (e) {
-        // CORS or network failure — fall through to inferred
-      }
-
-      if (detected.length === 0) {
-        const domain = new URL(url.startsWith('http') ? url : 'https://' + url).hostname;
-        inferred.push(
-          { name: 'Cloud Hosting', cat: 'Infrastructure', detected: false },
-          { name: 'CDN', cat: 'Performance', detected: false },
-          { name: 'Analytics Platform', cat: 'Analytics', detected: false },
-          { name: 'CRM', cat: 'Sales', detected: false },
-          { name: 'Marketing Automation', cat: 'Marketing', detected: false },
-        );
-      }
-
-      return { detected, inferred, all: [...detected, ...inferred] };
-    }
-
-    function generateCompanyNews(companyName, industry, stage, founded) {
-      const now = new Date();
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-      const fundingAmounts = {
-        'Series A': '$12M', 'Series B': '$35M', 'Series C': '$80M',
-        'Series D': '$150M', 'Growth Stage': '$200M', 'Public': 'N/A',
-      };
-
-      const newsPool = [
-        {
-          type: 'funding',
-          title: `${companyName} raises ${fundingAmounts[stage] || '$25M'} ${stage} round`,
-          desc: `Led by a top-tier VC firm, the round values ${companyName} at a significant premium over prior benchmarks. Funds earmarked for product expansion and go-to-market.`,
-          daysAgo: Math.floor(Math.random() * 60) + 15,
-        },
-        {
-          type: 'hiring',
-          title: `${companyName} hiring aggressively across engineering and go-to-market`,
-          desc: `${Math.floor(Math.random() * 30) + 10}+ open roles on their careers page signals investment in both product development and revenue growth.`,
-          daysAgo: Math.floor(Math.random() * 30) + 5,
-        },
-        {
-          type: 'product',
-          title: `${companyName} launches new ${industry} platform capabilities`,
-          desc: `Recent product announcements suggest a push into adjacent use cases and upmarket positioning, likely targeting enterprise buyers.`,
-          daysAgo: Math.floor(Math.random() * 45) + 10,
-        },
-        {
-          type: 'press',
-          title: `${companyName} featured in industry report on top ${industry} companies`,
-          desc: `Named as a notable vendor in a recent analyst report, signaling growing market recognition and competitive momentum.`,
-          daysAgo: Math.floor(Math.random() * 90) + 20,
-        },
-        {
-          type: 'hiring',
-          title: `New C-suite hire signals strategic shift at ${companyName}`,
-          desc: `A recent senior leadership hire suggests ${companyName} is preparing for its next growth phase — new leaders often bring new vendor evaluations.`,
-          daysAgo: Math.floor(Math.random() * 40) + 8,
-        },
-      ];
-
-      const selected = newsPool
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 4)
-        .sort((a, b) => a.daysAgo - b.daysAgo);
-
-      return selected.map(n => {
-        const date = new Date(now.getTime() - n.daysAgo * 86400000);
-        return {
-          ...n,
-          dateLabel: `${months[date.getMonth()]} ${date.getDate()}`,
-        };
+      document.getElementById('apiKey').addEventListener('input', function() {
+        try { localStorage.setItem('prospect_tool_api_key', this.value); } catch (e) {}
       });
-    }
+      document.getElementById('model').addEventListener('change', function() {
+        try { localStorage.setItem('prospect_tool_model', this.value); } catch (e) {}
+      });
 
-    function generateOutreachAngle(prospect, company, painPoints, news) {
-      const fundingNews = news.find(n => n.type === 'funding');
-      const hiringNews = news.find(n => n.type === 'hiring');
-      const productNews = news.find(n => n.type === 'product');
-      const topPain = painPoints[0];
-
-      const hooks = [];
-
-      if (fundingNews) {
-        hooks.push({
-          label: 'Lead with Funding Momentum',
-          title: 'Congratulate on recent raise, connect to scaling challenges',
-          desc: `Reference ${company.name}'s recent ${company.stage} round and how similar companies at this inflection point typically re-evaluate their stack to support the next phase of growth. Ask what their top priorities are for the funds.`,
+      document.querySelectorAll('.input-card input').forEach(input => {
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') generateBrief();
         });
-      }
-
-      if (hiringNews) {
-        hooks.push({
-          label: 'Hiring Surge as Entry Point',
-          title: 'Connect rapid team growth to operational pain',
-          desc: `${company.name}'s aggressive hiring signals they're scaling fast. Growing teams amplify ${topPain ? topPain.name.toLowerCase() : 'operational'} challenges. Position your solution as something that scales with them without proportional overhead.`,
-        });
-      }
-
-      hooks.push({
-        label: 'Role-Specific Value Prop',
-        title: `Speak directly to ${prospect.firstName}'s day-to-day as ${prospect.title}`,
-        desc: `Lead with the pain point "${topPain ? topPain.name : 'scaling challenges'}" — frame it as something you've heard from other ${prospect.title}s at ${company.industry} companies of similar size. Use a peer benchmark or stat to validate.`,
       });
-
-      hooks.push({
-        label: 'Mutual Connection or Content Play',
-        title: 'Warm intro or share a relevant resource',
-        desc: `Check for mutual connections on LinkedIn who could introduce you. Failing that, reference a specific post or article by ${prospect.firstName}, and reply with genuine insight — not a pitch. Follow up with a relevant resource (benchmark report, case study) a few days later.`,
-      });
-
-      const subjectLine = fundingNews
-        ? `Congrats on the raise, ${prospect.firstName} — quick thought on scaling ${topPain ? topPain.name.toLowerCase() : 'operations'}`
-        : hiringNews
-          ? `${prospect.firstName} — saw ${company.name} is growing fast, had a thought`
-          : `${prospect.firstName} — a pattern I'm seeing across ${company.industry} ${prospect.title}s`;
-
-      const messageTemplate = `Hi ${prospect.firstName},
-
-${fundingNews
-  ? `Congrats on ${company.name}'s recent round — exciting momentum.`
-  : `I've been following ${company.name}'s growth in the ${company.industry} space — impressive trajectory.`}
-
-I work with ${prospect.title}s at ${company.industry} companies going through a similar growth phase, and <span class="highlight">${topPain ? topPain.name.toLowerCase() : 'scaling challenges'}</span> keeps coming up as a top priority.
-
-Curious if that resonates with what you're seeing at ${company.name}? I have a quick framework / case study from a company at a similar stage that might be useful.
-
-Happy to share it over a 15-min call or async — whatever's easier.`;
-
-      return { hooks, subjectLine, messageTemplate };
     }
 
-    function generateResearchData(linkedinUrl, companyUrl) {
-      const li = parseLinkedInUrl(linkedinUrl);
-      const co = parseCompanyUrl(companyUrl);
+    function toggleKeyVisibility() {
+      const input = document.getElementById('apiKey');
+      const btn = document.getElementById('toggleKey');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = 'Hide';
+      } else {
+        input.type = 'password';
+        btn.textContent = 'Show';
+      }
+    }
 
-      const fullName = li.nameParts.length >= 2
-        ? li.nameParts.join(' ')
-        : li.nameParts.length === 1
-          ? li.nameParts[0]
-          : 'Prospect Name';
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.innerHTML = '<div class="error-box">' + msg + '</div>';
+      el.style.display = 'block';
+    }
 
-      const firstName = li.nameParts[0] || 'Prospect';
+    function hideError() {
+      document.getElementById('error').style.display = 'none';
+    }
 
-      const titles = [
-        'VP of Engineering', 'Chief Technology Officer', 'Head of Product',
-        'Director of Operations', 'VP of Sales', 'Chief Revenue Officer',
-        'Head of Growth', 'Director of Engineering', 'Chief Product Officer',
-        'VP of Marketing'
-      ];
+    function setLoading(visible, status, sub) {
+      const el = document.getElementById('loading');
+      el.style.display = visible ? 'block' : 'none';
+      if (status) document.getElementById('loadingStatus').textContent = status;
+      if (sub !== undefined) document.getElementById('loadingSub').textContent = sub;
+    }
 
-      const industries = [
-        'Enterprise SaaS', 'FinTech', 'HealthTech', 'E-Commerce',
-        'Cloud Infrastructure', 'Cybersecurity', 'AI/ML Platform',
-        'Data Analytics', 'MarTech', 'HR Tech'
-      ];
+    function extractWebsiteData(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
 
-      const companySizes = ['50-200', '200-500', '500-1000', '1000-5000', '5000+'];
-      const revenues = ['$5M-$20M', '$20M-$50M', '$50M-$100M', '$100M-$500M', '$500M+'];
-      const stages = ['Series A', 'Series B', 'Series C', 'Series D', 'Growth Stage', 'Public'];
-      const locations = [
-        'San Francisco, CA', 'New York, NY', 'Austin, TX', 'Seattle, WA',
-        'Boston, MA', 'Chicago, IL', 'Denver, CO', 'Miami, FL', 'London, UK'
-      ];
+      const metas = Array.from(doc.querySelectorAll('meta')).map(m => {
+        const name = m.getAttribute('name') || m.getAttribute('property') || '';
+        const content = m.getAttribute('content') || '';
+        return name && content ? name + ': ' + content : null;
+      }).filter(Boolean).slice(0, 40);
 
-      const title = randomFrom(titles);
-      const industry = randomFrom(industries);
-      const companySize = randomFrom(companySizes);
-      const revenue = randomFrom(revenues);
-      const stage = randomFrom(stages);
-      const location = randomFrom(locations);
+      const scripts = Array.from(doc.querySelectorAll('script[src]'))
+        .map(s => s.getAttribute('src'))
+        .filter(Boolean).slice(0, 60);
 
-      const yearsInRole = Math.floor(Math.random() * 5) + 1;
-      const totalExperience = yearsInRole + Math.floor(Math.random() * 15) + 5;
+      const links = Array.from(doc.querySelectorAll('link[href]')).map(l => {
+        const rel = l.getAttribute('rel') || '';
+        const href = l.getAttribute('href') || '';
+        return rel + ': ' + href;
+      }).slice(0, 30);
 
-      const founded = 2024 - Math.floor(Math.random() * 15) - 3;
-      const painPoints = getRolePainPoints(title, industry, co.name, companySize);
-      const news = generateCompanyNews(co.name, industry, stage, founded);
-
-      const prospect = {
-        fullName,
-        firstName,
-        initials: getInitials(li.nameParts),
-        title,
-        linkedinUrl,
-        linkedinSlug: li.slug,
-        location,
-        yearsInRole,
-        totalExperience,
-      };
-
-      const company = {
-        name: co.name,
-        domain: co.domain,
-        url: co.url,
-        industry,
-        size: companySize,
-        revenue,
-        stage,
-        founded,
-        headquarters: location,
-      };
-
-      const outreach = generateOutreachAngle(prospect, company, painPoints, news);
+      doc.querySelectorAll('script, style, noscript, svg').forEach(el => el.remove());
+      const textContent = (doc.body ? doc.body.textContent : '')
+        .replace(/\s+/g, ' ').trim().substring(0, 25000);
 
       return {
-        prospect,
-        company,
-        painPoints,
-        news,
-        outreach,
-        brief: {
-          fitScore: Math.floor(Math.random() * 25) + 65,
-          urgencyScore: Math.floor(Math.random() * 30) + 50,
-          accessibilityScore: Math.floor(Math.random() * 30) + 60,
-        },
-        date: new Date().toLocaleDateString('en-US', {
-          year: 'numeric', month: 'long', day: 'numeric'
-        }),
+        title: doc.title || '',
+        metas,
+        scripts,
+        links,
+        textContent
       };
+    }
+
+    function parseCompanyDomain(url) {
+      try {
+        const u = new URL(url.startsWith('http') ? url : 'https://' + url);
+        return u.hostname.replace(/^www\./, '');
+      } catch {
+        return url;
+      }
+    }
+
+    function buildPrompt(websiteData, linkedinText, companyUrl, linkedinUrl) {
+      const domain = parseCompanyDomain(companyUrl);
+      let prompt = '';
+
+      if (websiteData) {
+        prompt += '## Company Website: ' + domain + '\n\n';
+        prompt += 'Page Title: ' + websiteData.title + '\n\n';
+        if (websiteData.metas.length) {
+          prompt += 'Meta Tags:\n' + websiteData.metas.join('\n') + '\n\n';
+        }
+        if (websiteData.scripts.length) {
+          prompt += 'Script Sources (for tech stack detection):\n' + websiteData.scripts.join('\n') + '\n\n';
+        }
+        if (websiteData.links.length) {
+          prompt += 'Link Elements:\n' + websiteData.links.join('\n') + '\n\n';
+        }
+        prompt += 'Page Text Content:\n' + websiteData.textContent + '\n\n';
+      } else {
+        prompt += '## Company Website: ' + domain + '\n\n';
+        prompt += 'Note: The website could not be fetched directly (CORS restriction). Please use your knowledge about this company based on the domain "' + domain + '" to fill in company details.\n\n';
+      }
+
+      prompt += '## LinkedIn Profile Text:\n\n' + linkedinText + '\n\n';
+
+      if (linkedinUrl) {
+        prompt += '## LinkedIn URL: ' + linkedinUrl + '\n\n';
+      }
+
+      prompt += 'Please analyze this prospect and their company, then generate a comprehensive research brief.';
+      return prompt;
+    }
+
+    const SYSTEM_PROMPT = `You are an expert B2B sales researcher. Analyze the provided company website data and LinkedIn profile to generate a comprehensive prospect research brief.
+
+Return ONLY valid JSON (no markdown fences, no explanation before or after) matching this structure:
+
+{
+  "prospect": {
+    "fullName": "Full name from LinkedIn",
+    "firstName": "First name",
+    "title": "Current job title from LinkedIn",
+    "location": "City, State/Country from LinkedIn",
+    "yearsInRole": "Years in current role (estimate from dates)",
+    "totalExperience": "Total professional experience in years",
+    "summary": "2-3 sentence professional background summary based on their experience"
+  },
+  "company": {
+    "name": "Company name",
+    "industry": "Specific industry (e.g., Enterprise SaaS, FinTech, HealthTech)",
+    "size": "Employee count range (e.g., 200-500)",
+    "revenue": "Estimated revenue range based on size/stage",
+    "stage": "Funding stage or Public",
+    "founded": "Year founded or Unknown",
+    "headquarters": "HQ location",
+    "description": "2-3 sentence description of what the company does, based on website content"
+  },
+  "techStack": [
+    {"name": "Technology", "cat": "Category", "detected": true}
+  ],
+  "painPoints": [
+    {"name": "Pain point name", "desc": "2-3 sentence description specific to this prospect's actual role, seniority, industry, and company situation"}
+  ],
+  "talkingPoints": [
+    {"title": "Talking point", "desc": "How to use this in conversation, referencing real details from the profile"}
+  ],
+  "news": [
+    {"title": "Headline", "desc": "Brief description", "type": "funding|hiring|product|press", "dateLabel": "approximate date or Recent"}
+  ],
+  "outreach": {
+    "hooks": [
+      {"title": "Hook approach name", "desc": "Detailed description of the approach"}
+    ],
+    "subjectLine": "Email subject line",
+    "messageTemplate": "Full draft outreach message. Use **double asterisks** around phrases that are personalization anchors the user should customize."
+  },
+  "fitScores": {
+    "fitScore": 75,
+    "urgencyScore": 65,
+    "accessibilityScore": 70
+  }
+}
+
+Guidelines:
+- Use REAL information extracted from the provided data. Do not invent specific funding amounts, dates, or facts you cannot verify from the inputs.
+- techStack: Identify technologies from script sources, meta tags, link elements, and page text. "detected": true for technologies found in the website HTML, false for reasonable inferences based on company type.
+- painPoints: 4-5 pain points. Be specific to this person's actual role and seniority, not generic. Reference their real company and industry.
+- talkingPoints: 3 points grounded in real information from the profile and website.
+- news: Include signals you can identify from the data (hiring indicators, product launches, growth signals). Use "type" to categorize. If speculating, make the title clear about that.
+- outreach hooks: 3-4 approaches ranked by likely effectiveness. Reference real details about the prospect.
+- messageTemplate: A ready-to-customize outreach message. Surround key personalization points with **double asterisks**.
+- fitScores: Your honest assessment. fitScore = how well they match a typical B2B buyer profile. urgencyScore = likelihood they're actively evaluating solutions. accessibilityScore = how reachable they appear.
+- If something is genuinely unknown, say so rather than fabricating.`;
+
+    async function callClaudeAPI(apiKey, model, userPrompt) {
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: model,
+          max_tokens: 4096,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+
+      if (!resp.ok) {
+        const body = await resp.text().catch(() => '');
+        if (resp.status === 401) throw new Error('Invalid API key. Check your Anthropic API key in the settings above.');
+        if (resp.status === 429) throw new Error('Rate limited. Wait a moment and try again.');
+        if (resp.status === 400) {
+          const msg = body.includes('credit') ? 'Your API account may be out of credits.' : 'Bad request: ' + body.substring(0, 200);
+          throw new Error(msg);
+        }
+        throw new Error('API error (' + resp.status + '): ' + body.substring(0, 200));
+      }
+
+      const data = await resp.json();
+      const text = data.content && data.content[0] && data.content[0].text;
+      if (!text) throw new Error('Empty response from Claude API.');
+      return text;
+    }
+
+    function parseJSON(text) {
+      try { return JSON.parse(text); } catch {}
+      const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (fenced) {
+        try { return JSON.parse(fenced[1]); } catch {}
+      }
+      const start = text.indexOf('{');
+      const end = text.lastIndexOf('}');
+      if (start !== -1 && end > start) {
+        try { return JSON.parse(text.substring(start, end + 1)); } catch {}
+      }
+      throw new Error('Could not parse the AI response. Try again.');
+    }
+
+    function getInitials(name) {
+      return name.split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
     }
 
     function scoreColor(score) {
@@ -1125,46 +1088,119 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
       return 'var(--warning)';
     }
 
+    function formatTemplate(text) {
+      return (text || '')
+        .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     async function generateBrief() {
-      const linkedinUrl = document.getElementById('linkedin').value.trim();
+      hideError();
+      const apiKey = document.getElementById('apiKey').value.trim();
       const companyUrl = document.getElementById('company').value.trim();
+      const linkedinText = document.getElementById('linkedinText').value.trim();
+      const linkedinUrl = document.getElementById('linkedinUrl').value.trim();
+      const model = document.getElementById('model').value;
 
-      if (!linkedinUrl || !companyUrl) {
-        alert('Please enter both a LinkedIn profile URL and a company website URL.');
+      if (!apiKey) {
+        showError('Please enter your Anthropic API key. Open <strong>API Settings</strong> above.');
+        document.getElementById('settingsPanel').setAttribute('open', '');
+        return;
+      }
+      if (!companyUrl) {
+        showError('Please enter a company website URL.');
+        return;
+      }
+      if (!linkedinText) {
+        showError('Please paste the LinkedIn profile text. Go to the prospect\'s LinkedIn page, select all text (Ctrl+A), copy, and paste it in the text area.');
         return;
       }
 
-      if (!linkedinUrl.includes('linkedin.com')) {
-        alert('Please enter a valid LinkedIn URL (e.g., https://linkedin.com/in/username).');
-        return;
-      }
-
-      const btn = document.getElementById('generate');
+      const btn = document.getElementById('generateBtn');
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Researching...';
+      document.getElementById('brief').style.display = 'none';
 
-      const [d, techStack] = await Promise.all([
-        (async () => { await new Promise(r => setTimeout(r, 400)); return generateResearchData(linkedinUrl, companyUrl); })(),
-        detectTechStack(companyUrl),
-      ]);
+      let websiteData = null;
+      let websiteFetched = false;
 
-      window._briefData = d;
-      window._briefTechStack = techStack;
+      setLoading(true, 'Fetching company website...', parseCompanyDomain(companyUrl));
 
+      try {
+        const fullUrl = companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl;
+        const resp = await fetch(fullUrl, { mode: 'cors', signal: AbortSignal.timeout(10000) });
+        const html = (await resp.text()).substring(0, 200000);
+        websiteData = extractWebsiteData(html);
+        websiteFetched = true;
+      } catch (e) {
+        websiteFetched = false;
+      }
+
+      setLoading(true,
+        'Analyzing with Claude AI...',
+        websiteFetched
+          ? 'Website fetched successfully. Sending to Claude for analysis.'
+          : 'Website couldn\'t be fetched (CORS). Claude will use its knowledge of this company.'
+      );
+
+      try {
+        const userPrompt = buildPrompt(websiteData, linkedinText, companyUrl, linkedinUrl);
+        const responseText = await callClaudeAPI(apiKey, model, userPrompt);
+        const d = parseJSON(responseText);
+
+        d._websiteFetched = websiteFetched;
+        d._companyDomain = parseCompanyDomain(companyUrl);
+        d._companyUrl = companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl;
+        d._linkedinUrl = linkedinUrl;
+        d._date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        window._briefData = d;
+
+        setLoading(false);
+        renderBrief(d);
+      } catch (e) {
+        setLoading(false);
+        showError(e.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = 'Generate Research Brief';
+    }
+
+    function renderBrief(d) {
       const briefEl = document.getElementById('brief');
       briefEl.style.display = 'block';
       document.getElementById('clearBtn').style.display = '';
+
+      const p = d.prospect || {};
+      const c = d.company || {};
+      const scores = d.fitScores || {};
+      const initials = getInitials(p.fullName || 'Unknown');
+      const linkedinSlug = d._linkedinUrl ? d._linkedinUrl.replace(/.*linkedin\.com\/in\//, '').replace(/[/?#].*/, '') : '';
+
+      let sourceBadges = '';
+      if (d._websiteFetched) {
+        sourceBadges += '<span class="source-badge ok">&#10003; Website scanned</span>';
+      } else {
+        sourceBadges += '<span class="source-badge warn">&#9888; Website inferred (CORS)</span>';
+      }
+      sourceBadges += '<span class="source-badge ok">&#10003; LinkedIn profile analyzed</span>';
 
       briefEl.innerHTML = `
         <div class="brief-header">
           <div>
             <h2>Research Brief</h2>
-            <div class="meta">Generated ${d.date} &middot; Sources: LinkedIn, ${d.company.domain}</div>
+            <div class="meta">Generated ${d._date} &middot; AI-powered analysis via Claude</div>
+            <div class="source-badges" style="margin-top:8px">${sourceBadges}</div>
           </div>
           <div class="brief-actions">
             <button class="btn btn-secondary" onclick="window.print()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-              Print / PDF
+              Print
             </button>
             <button class="btn btn-secondary" onclick="copyBrief()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -1181,151 +1217,129 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
           <div class="brief-section full-width">
             <h3>Prospect Profile</h3>
             <div class="profile-header">
-              <div class="avatar">${d.prospect.initials}</div>
+              <div class="avatar">${escapeHtml(initials)}</div>
               <div>
-                <div class="profile-name" contenteditable="true" class="editable">${d.prospect.fullName}</div>
-                <div class="profile-title" contenteditable="true" class="editable">${d.prospect.title} at ${d.company.name}</div>
-              </div>
-              <div style="margin-left:auto">
-                <span class="status-badge green"><span class="status-dot"></span>Active Profile</span>
+                <div class="profile-name editable" contenteditable="true">${escapeHtml(p.fullName || 'Unknown')}</div>
+                <div class="profile-title editable" contenteditable="true">${escapeHtml(p.title || 'Unknown Title')} at ${escapeHtml(c.name || 'Unknown Company')}</div>
               </div>
             </div>
             <div class="info-grid">
               <div class="info-item">
                 <div class="info-label">Location</div>
-                <div class="info-value editable" contenteditable="true">${d.prospect.location}</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(p.location || 'Unknown')}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">Years in Role</div>
-                <div class="info-value editable" contenteditable="true">${d.prospect.yearsInRole} years</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(String(p.yearsInRole || 'Unknown'))}</div>
               </div>
-              <div class="info-item">
+              ${d._linkedinUrl ? `<div class="info-item">
                 <div class="info-label">LinkedIn</div>
-                <div class="info-value"><a href="${d.prospect.linkedinUrl}" target="_blank">linkedin.com/in/${d.prospect.linkedinSlug}</a></div>
-              </div>
+                <div class="info-value"><a href="${escapeHtml(d._linkedinUrl)}" target="_blank" rel="noopener">linkedin.com/in/${escapeHtml(linkedinSlug)}</a></div>
+              </div>` : ''}
               <div class="info-item">
                 <div class="info-label">Total Experience</div>
-                <div class="info-value editable" contenteditable="true">${d.prospect.totalExperience}+ years</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(String(p.totalExperience || 'Unknown'))}</div>
               </div>
             </div>
+            ${p.summary ? `<div class="profile-summary editable" contenteditable="true">${escapeHtml(p.summary)}</div>` : ''}
           </div>
 
           <div class="brief-section">
             <h3>Company Overview</h3>
             <div class="info-item">
               <div class="info-label">Company</div>
-              <div class="info-value" style="font-weight:600;font-size:16px" contenteditable="true">${d.company.name}</div>
+              <div class="info-value editable" style="font-weight:600;font-size:16px" contenteditable="true">${escapeHtml(c.name || 'Unknown')}</div>
             </div>
+            ${c.description ? `<div style="font-size:13px;color:var(--text-secondary);margin:8px 0;line-height:1.5" contenteditable="true">${escapeHtml(c.description)}</div>` : ''}
             <div class="info-grid" style="margin-top:8px">
               <div class="info-item">
                 <div class="info-label">Industry</div>
-                <div class="info-value editable" contenteditable="true">${d.company.industry}</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(c.industry || 'Unknown')}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">Company Size</div>
-                <div class="info-value editable" contenteditable="true">${d.company.size} employees</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(c.size || 'Unknown')}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">Est. Revenue</div>
-                <div class="info-value editable" contenteditable="true">${d.company.revenue}</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(c.revenue || 'Unknown')}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">Stage</div>
-                <div class="info-value editable" contenteditable="true">${d.company.stage}</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(c.stage || 'Unknown')}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">Founded</div>
-                <div class="info-value editable" contenteditable="true">${d.company.founded}</div>
+                <div class="info-value editable" contenteditable="true">${escapeHtml(String(c.founded || 'Unknown'))}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">Website</div>
-                <div class="info-value"><a href="${d.company.url}" target="_blank">${d.company.domain}</a></div>
+                <div class="info-value"><a href="${escapeHtml(d._companyUrl)}" target="_blank" rel="noopener">${escapeHtml(d._companyDomain)}</a></div>
               </div>
             </div>
           </div>
 
           <div class="brief-section">
             <h3>Prospect Fit Scores</h3>
-            <div class="score-item">
-              <div class="score-name">ICP Fit</div>
-              <div class="score-bar">
-                <div class="score-track">
-                  <div class="score-fill" style="width:${d.brief.fitScore}%;background:${scoreColor(d.brief.fitScore)}"></div>
+            ${['fitScore', 'urgencyScore', 'accessibilityScore'].map(key => {
+              const labels = { fitScore: 'ICP Fit', urgencyScore: 'Buying Urgency', accessibilityScore: 'Accessibility' };
+              const val = scores[key] || 50;
+              return `<div class="score-item">
+                <div class="score-name">${labels[key]}</div>
+                <div class="score-bar">
+                  <div class="score-track">
+                    <div class="score-fill" style="width:${val}%;background:${scoreColor(val)}"></div>
+                  </div>
+                  <div class="score-label" style="color:${scoreColor(val)}">${val}%</div>
                 </div>
-                <div class="score-label" style="color:${scoreColor(d.brief.fitScore)}">${d.brief.fitScore}%</div>
-              </div>
-            </div>
-            <div class="score-item">
-              <div class="score-name">Buying Urgency</div>
-              <div class="score-bar">
-                <div class="score-track">
-                  <div class="score-fill" style="width:${d.brief.urgencyScore}%;background:${scoreColor(d.brief.urgencyScore)}"></div>
-                </div>
-                <div class="score-label" style="color:${scoreColor(d.brief.urgencyScore)}">${d.brief.urgencyScore}%</div>
-              </div>
-            </div>
-            <div class="score-item">
-              <div class="score-name">Accessibility</div>
-              <div class="score-bar">
-                <div class="score-track">
-                  <div class="score-fill" style="width:${d.brief.accessibilityScore}%;background:${scoreColor(d.brief.accessibilityScore)}"></div>
-                </div>
-                <div class="score-label" style="color:${scoreColor(d.brief.accessibilityScore)}">${d.brief.accessibilityScore}%</div>
-              </div>
-            </div>
+              </div>`;
+            }).join('')}
           </div>
 
           <div class="brief-section full-width">
             <h3>Key Talking Points</h3>
-            <div class="talking-point">
-              <strong contenteditable="true">Industry Expertise & Pain Points</strong>
-              <p contenteditable="true">${d.prospect.firstName}'s role as ${d.prospect.title} in the ${d.company.industry} space means they likely face challenges around scaling operations, optimizing team productivity, and managing technical debt. Lead with questions about their current tech stack and where bottlenecks occur.</p>
-            </div>
-            <div class="talking-point">
-              <strong contenteditable="true">Company Growth Stage Alignment</strong>
-              <p contenteditable="true">At ${d.company.stage} with ${d.company.size} employees, ${d.company.name} is likely prioritizing go-to-market acceleration and operational efficiency. Position your solution as enabling their next phase of growth without proportional headcount increases.</p>
-            </div>
-            <div class="talking-point">
-              <strong contenteditable="true">Competitive Positioning</strong>
-              <p contenteditable="true">Companies in the ${d.company.industry} vertical at ${d.company.name}'s stage are typically evaluating or replacing incumbent solutions. Reference relevant case studies from similar-sized ${d.company.industry} companies to build credibility.</p>
-            </div>
+            ${(d.talkingPoints || []).map(tp => `
+              <div class="talking-point">
+                <strong contenteditable="true">${escapeHtml(tp.title)}</strong>
+                <p contenteditable="true">${escapeHtml(tp.desc)}</p>
+              </div>
+            `).join('')}
           </div>
 
           <div class="brief-section full-width">
             <h3>Role &amp; Industry Pain Points</h3>
-            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Likely challenges for a <strong>${d.prospect.title}</strong> in <strong>${d.company.industry}</strong> at a ${d.company.size}-employee company</p>
-            ${d.painPoints.map(p => `
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Challenges for <strong>${escapeHtml(p.title || 'this role')}</strong> in <strong>${escapeHtml(c.industry || 'this industry')}</strong></p>
+            ${(d.painPoints || []).map(pp => `
               <div class="pain-card">
-                <span class="pain-context">${classifyRole(d.prospect.title)} &middot; ${d.company.industry}</span>
-                <strong contenteditable="true">${p.name}</strong>
-                <p contenteditable="true">${p.desc}</p>
+                <strong contenteditable="true">${escapeHtml(pp.name)}</strong>
+                <p contenteditable="true">${escapeHtml(pp.desc)}</p>
               </div>
             `).join('')}
           </div>
 
           <div class="brief-section">
-            <h3>Tech Stack <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:var(--text-muted)">(from ${d.company.domain})</span></h3>
-            ${techStack.detected.length > 0
+            <h3>Tech Stack <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:var(--text-muted)">(from ${escapeHtml(d._companyDomain)})</span></h3>
+            ${d._websiteFetched
               ? '<p style="font-size:12px;color:var(--success);margin-bottom:10px;font-weight:600">Detected from website source</p>'
-              : '<p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Could not scan website (CORS) &mdash; showing typical stack for this profile. Edit to match.</p>'
+              : '<p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Inferred from company profile. Edit to match.</p>'
             }
             <div class="tech-grid">
-              ${techStack.all.map(t => `
+              ${(d.techStack || []).map(t => `
                 <div class="tech-tag${t.detected ? ' detected' : ''}" contenteditable="true">
-                  <span class="tech-cat">${t.cat}</span> ${t.name}
+                  <span class="tech-cat">${escapeHtml(t.cat)}</span> ${escapeHtml(t.name)}
                 </div>
               `).join('')}
             </div>
           </div>
 
           <div class="brief-section">
-            <h3>Recent News &amp; Signals</h3>
-            ${d.news.map(n => `
+            <h3>Signals &amp; Intelligence</h3>
+            ${(d.news || []).map(n => `
               <div class="news-item">
-                <div class="news-date">${n.dateLabel}</div>
+                <div class="news-date">${escapeHtml(n.dateLabel || '')}</div>
                 <div class="news-body">
-                  <strong contenteditable="true">${n.title}<span class="news-tag ${n.type}">${n.type}</span></strong>
-                  <p contenteditable="true">${n.desc}</p>
+                  <strong contenteditable="true">${escapeHtml(n.title)}<span class="news-tag ${n.type || ''}">${escapeHtml(n.type || '')}</span></strong>
+                  <p contenteditable="true">${escapeHtml(n.desc)}</p>
                 </div>
               </div>
             `).join('')}
@@ -1333,42 +1347,40 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
 
           <div class="brief-section full-width">
             <h3>Personalized Outreach Angle</h3>
-
             <div style="margin-bottom:16px">
               <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;font-weight:600;letter-spacing:0.5px">Recommended hooks (ranked)</p>
-              ${d.outreach.hooks.map((h, i) => `
+              ${(d.outreach && d.outreach.hooks || []).map((h, i) => `
                 <div class="angle-row">
                   <div class="angle-num">${i + 1}</div>
                   <div class="angle-content">
-                    <strong contenteditable="true">${h.title}</strong>
-                    <p contenteditable="true">${h.desc}</p>
+                    <strong contenteditable="true">${escapeHtml(h.title)}</strong>
+                    <p contenteditable="true">${escapeHtml(h.desc)}</p>
                   </div>
                 </div>
               `).join('')}
             </div>
-
             <div class="outreach-card">
               <div class="outreach-label">Draft Message Template</div>
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Subject: <span contenteditable="true" style="color:var(--text)">${d.outreach.subjectLine}</span></div>
-              <div class="outreach-body" contenteditable="true">${d.outreach.messageTemplate}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Subject: <span contenteditable="true" style="color:var(--text)">${escapeHtml(d.outreach && d.outreach.subjectLine || '')}</span></div>
+              <div class="outreach-body" contenteditable="true">${formatTemplate(d.outreach && d.outreach.messageTemplate || '')}</div>
             </div>
-            <p style="font-size:11px;color:var(--text-muted);margin-top:6px">All highlighted phrases are personalization anchors — customize them based on your actual offering and the prospect's real activity.</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:6px">Highlighted phrases are personalization anchors — customize them for your specific offering.</p>
           </div>
 
           <div class="brief-section full-width">
             <h3>Research Checklist</h3>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px">
               ${[
-                ['Review their recent LinkedIn posts and activity', false],
-                ['Check for mutual connections to request warm intro', false],
-                ['Identify recent company press releases or funding news', false],
-                ['Review their conference talks or published articles', false],
-                ['Check Glassdoor/hiring pages for tech stack clues', false],
-                ['Research competitors and their positioning', false],
-              ].map(([text, done]) => `
+                'Review their recent LinkedIn posts and activity',
+                'Check for mutual connections for a warm intro',
+                'Look up recent company press releases',
+                'Review their conference talks or published articles',
+                'Check Glassdoor for culture and hiring signals',
+                'Research competitors and positioning',
+              ].map(text => `
                 <label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:var(--text-secondary);cursor:pointer">
-                  <input type="checkbox" ${done ? 'checked' : ''} style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer" />
-                  ${text}
+                  <input type="checkbox" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer" />
+                  ${escapeHtml(text)}
                 </label>
               `).join('')}
             </div>
@@ -1382,174 +1394,134 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
       `;
 
       briefEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      btn.disabled = false;
-      btn.innerHTML = 'Generate Research Brief';
     }
 
-    function generateMarkdown(d, techStack) {
+    function generateMarkdown(d) {
+      const p = d.prospect || {};
+      const c = d.company || {};
+      const scores = d.fitScores || {};
+
       const bar = (score) => {
-        const filled = Math.round(score / 10);
-        return '█'.repeat(filled) + '░'.repeat(10 - filled) + ' ' + score + '%';
+        const v = score || 0;
+        const filled = Math.round(v / 10);
+        return '█'.repeat(filled) + '░'.repeat(10 - filled) + ' ' + v + '%';
       };
 
-      const stripHighlight = (s) => s.replace(/<span class="highlight">(.*?)<\/span>/g, '**$1**');
+      const stripBold = (s) => (s || '').replace(/\*\*(.*?)\*\*/g, '**$1**');
+      const linkedinSlug = d._linkedinUrl ? d._linkedinUrl.replace(/.*linkedin\.com\/in\//, '').replace(/[/?#].*/, '') : '';
 
       const lines = [
-        `# ${d.prospect.fullName}`,
-        ``,
-        `> **${d.prospect.title}** at **${d.company.name}**`,
-        `> Generated ${d.date} | Sources: LinkedIn, ${d.company.domain}`,
-        ``,
-        `---`,
-        ``,
-        `## Prospect Profile`,
-        ``,
-        `| Field | Detail |`,
-        `|-------|--------|`,
-        `| **Name** | ${d.prospect.fullName} |`,
-        `| **Title** | ${d.prospect.title} |`,
-        `| **Company** | ${d.company.name} |`,
-        `| **Location** | ${d.prospect.location} |`,
-        `| **Years in Role** | ${d.prospect.yearsInRole} years |`,
-        `| **Total Experience** | ${d.prospect.totalExperience}+ years |`,
-        `| **LinkedIn** | [linkedin.com/in/${d.prospect.linkedinSlug}](${d.prospect.linkedinUrl}) |`,
-        ``,
-        `---`,
-        ``,
-        `## Company Overview`,
-        ``,
-        `| Field | Detail |`,
-        `|-------|--------|`,
-        `| **Company** | ${d.company.name} |`,
-        `| **Website** | [${d.company.domain}](${d.company.url}) |`,
-        `| **Industry** | ${d.company.industry} |`,
-        `| **Company Size** | ${d.company.size} employees |`,
-        `| **Est. Revenue** | ${d.company.revenue} |`,
-        `| **Stage** | ${d.company.stage} |`,
-        `| **Founded** | ${d.company.founded} |`,
-        ``,
-        `---`,
-        ``,
-        `## Prospect Fit Scores`,
-        ``,
-        `| Metric | Score |`,
-        `|--------|-------|`,
-        `| ICP Fit | ${bar(d.brief.fitScore)} |`,
-        `| Buying Urgency | ${bar(d.brief.urgencyScore)} |`,
-        `| Accessibility | ${bar(d.brief.accessibilityScore)} |`,
-        ``,
-        `---`,
-        ``,
-        `## Key Talking Points`,
-        ``,
-        `### Industry Expertise & Pain Points`,
-        `${d.prospect.firstName}'s role as ${d.prospect.title} in the ${d.company.industry} space means they likely face challenges around scaling operations, optimizing team productivity, and managing technical debt. Lead with questions about their current tech stack and where bottlenecks occur.`,
-        ``,
-        `### Company Growth Stage Alignment`,
-        `At ${d.company.stage} with ${d.company.size} employees, ${d.company.name} is likely prioritizing go-to-market acceleration and operational efficiency. Position your solution as enabling their next phase of growth without proportional headcount increases.`,
-        ``,
-        `### Competitive Positioning`,
-        `Companies in the ${d.company.industry} vertical at ${d.company.name}'s stage are typically evaluating or replacing incumbent solutions. Reference relevant case studies from similar-sized ${d.company.industry} companies to build credibility.`,
-        ``,
-        `---`,
-        ``,
-        `## Role & Industry Pain Points`,
-        ``,
-        `> Likely challenges for a **${d.prospect.title}** in **${d.company.industry}** at a ${d.company.size}-employee company`,
-        ``,
+        '# ' + (p.fullName || 'Prospect'),
+        '',
+        '> **' + (p.title || '') + '** at **' + (c.name || '') + '**',
+        '> Generated ' + d._date + ' | AI-powered analysis via Claude',
+        '',
+        '---',
+        '',
+        '## Prospect Profile',
+        '',
+        '| Field | Detail |',
+        '|-------|--------|',
+        '| **Name** | ' + (p.fullName || '') + ' |',
+        '| **Title** | ' + (p.title || '') + ' |',
+        '| **Company** | ' + (c.name || '') + ' |',
+        '| **Location** | ' + (p.location || '') + ' |',
+        '| **Years in Role** | ' + (p.yearsInRole || '') + ' |',
+        '| **Total Experience** | ' + (p.totalExperience || '') + ' |',
       ];
 
-      d.painPoints.forEach(p => {
-        lines.push(`### ${p.name}`);
-        lines.push(`*${classifyRole(d.prospect.title)} · ${d.company.industry}*`);
-        lines.push(``);
-        lines.push(p.desc);
-        lines.push(``);
+      if (d._linkedinUrl) {
+        lines.push('| **LinkedIn** | [linkedin.com/in/' + linkedinSlug + '](' + d._linkedinUrl + ') |');
+      }
+
+      if (p.summary) {
+        lines.push('', '*' + p.summary + '*');
+      }
+
+      lines.push('', '---', '', '## Company Overview', '',
+        '| Field | Detail |',
+        '|-------|--------|',
+        '| **Company** | ' + (c.name || '') + ' |',
+        '| **Website** | [' + (d._companyDomain || '') + '](' + (d._companyUrl || '') + ') |',
+        '| **Industry** | ' + (c.industry || '') + ' |',
+        '| **Size** | ' + (c.size || '') + ' |',
+        '| **Revenue** | ' + (c.revenue || '') + ' |',
+        '| **Stage** | ' + (c.stage || '') + ' |',
+        '| **Founded** | ' + (c.founded || '') + ' |'
+      );
+
+      if (c.description) {
+        lines.push('', '*' + c.description + '*');
+      }
+
+      lines.push('', '---', '', '## Fit Scores', '',
+        '| Metric | Score |',
+        '|--------|-------|',
+        '| ICP Fit | ' + bar(scores.fitScore) + ' |',
+        '| Buying Urgency | ' + bar(scores.urgencyScore) + ' |',
+        '| Accessibility | ' + bar(scores.accessibilityScore) + ' |'
+      );
+
+      lines.push('', '---', '', '## Key Talking Points', '');
+      (d.talkingPoints || []).forEach(tp => {
+        lines.push('### ' + tp.title, '', tp.desc, '');
       });
 
-      lines.push(`---`);
-      lines.push(``);
-      lines.push(`## Tech Stack`);
-      lines.push(`*Source: ${d.company.domain}${techStack.detected.length > 0 ? ' (detected from website)' : ' (inferred — could not scan website)'}*`);
-      lines.push(``);
-
-      lines.push(`| Technology | Category | Source |`);
-      lines.push(`|------------|----------|--------|`);
-      techStack.all.forEach(t => {
-        lines.push(`| ${t.name} | ${t.cat} | ${t.detected ? 'Detected' : 'Inferred'} |`);
+      lines.push('---', '', '## Role & Industry Pain Points', '');
+      (d.painPoints || []).forEach(pp => {
+        lines.push('### ' + pp.name, '', pp.desc, '');
       });
 
-      lines.push(``);
-      lines.push(`---`);
-      lines.push(``);
-      lines.push(`## Recent News & Signals`);
-      lines.push(``);
-
-      d.news.forEach(n => {
-        lines.push(`- **[${n.dateLabel}]** ${n.title} \`${n.type}\``);
-        lines.push(`  ${n.desc}`);
+      lines.push('---', '', '## Tech Stack',
+        '*Source: ' + (d._companyDomain || '') + (d._websiteFetched ? ' (detected)' : ' (inferred)') + '*', '',
+        '| Technology | Category | Source |',
+        '|------------|----------|--------|'
+      );
+      (d.techStack || []).forEach(t => {
+        lines.push('| ' + t.name + ' | ' + t.cat + ' | ' + (t.detected ? 'Detected' : 'Inferred') + ' |');
       });
 
-      lines.push(``);
-      lines.push(`---`);
-      lines.push(``);
-      lines.push(`## Personalized Outreach Angle`);
-      lines.push(``);
-      lines.push(`### Recommended Hooks`);
-      lines.push(``);
-
-      d.outreach.hooks.forEach((h, i) => {
-        lines.push(`**${i + 1}. ${h.title}**`);
-        lines.push(h.desc);
-        lines.push(``);
+      lines.push('', '---', '', '## Signals & Intelligence', '');
+      (d.news || []).forEach(n => {
+        lines.push('- **[' + (n.dateLabel || '') + ']** ' + n.title + ' `' + (n.type || '') + '`');
+        lines.push('  ' + n.desc);
       });
 
-      lines.push(`### Draft Message`);
-      lines.push(``);
-      lines.push(`**Subject:** ${d.outreach.subjectLine}`);
-      lines.push(``);
-      lines.push(`---`);
-      lines.push(``);
+      lines.push('', '---', '', '## Personalized Outreach', '', '### Recommended Hooks', '');
+      (d.outreach && d.outreach.hooks || []).forEach((h, i) => {
+        lines.push('**' + (i + 1) + '. ' + h.title + '**', '', h.desc, '');
+      });
 
-      const msgPlain = stripHighlight(d.outreach.messageTemplate)
-        .replace(/<[^>]*>/g, '')
-        .replace(/\n{3,}/g, '\n\n');
+      lines.push('### Draft Message', '',
+        '**Subject:** ' + (d.outreach && d.outreach.subjectLine || ''), '', '---', ''
+      );
+
+      const msgPlain = stripBold(d.outreach && d.outreach.messageTemplate || '');
       lines.push(msgPlain);
 
-      lines.push(``);
-      lines.push(`---`);
-      lines.push(``);
-      lines.push(`## Research Checklist`);
-      lines.push(``);
-      lines.push(`- [ ] Review their recent LinkedIn posts and activity`);
-      lines.push(`- [ ] Check for mutual connections to request warm intro`);
-      lines.push(`- [ ] Identify recent company press releases or funding news`);
-      lines.push(`- [ ] Review their conference talks or published articles`);
-      lines.push(`- [ ] Check Glassdoor/hiring pages for tech stack clues`);
-      lines.push(`- [ ] Research competitors and their positioning`);
-      lines.push(``);
-      lines.push(`---`);
-      lines.push(``);
-      lines.push(`## Notes`);
-      lines.push(``);
-      lines.push(`_Add your personal notes here..._`);
-      lines.push(``);
+      lines.push('', '---', '', '## Research Checklist', '',
+        '- [ ] Review their recent LinkedIn posts and activity',
+        '- [ ] Check for mutual connections for a warm intro',
+        '- [ ] Look up recent company press releases',
+        '- [ ] Review their conference talks or published articles',
+        '- [ ] Check Glassdoor for culture and hiring signals',
+        '- [ ] Research competitors and positioning',
+        '', '---', '', '## Notes', '', '_Add your notes here..._', ''
+      );
 
       return lines.join('\n');
     }
 
     function saveMarkdown() {
       const d = window._briefData;
-      const techStack = window._briefTechStack;
       if (!d) return;
 
-      const md = generateMarkdown(d, techStack);
-      const slug = d.prospect.fullName
+      const md = generateMarkdown(d);
+      const slug = (d.prospect && d.prospect.fullName || 'prospect')
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '');
-      const filename = `briefs/${slug}.md`;
+      const filename = 'briefs/' + slug + '.md';
 
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -1567,30 +1539,28 @@ Happy to share it over a 15-min call or async — whatever's easier.`;
       setTimeout(() => { btn.innerHTML = orig; }, 2000);
     }
 
-    function clearAll() {
-      document.getElementById('linkedin').value = '';
-      document.getElementById('company').value = '';
-      document.getElementById('brief').style.display = 'none';
-      document.getElementById('brief').innerHTML = '';
-      document.getElementById('clearBtn').style.display = 'none';
-    }
-
     function copyBrief() {
       const brief = document.getElementById('brief');
-      const text = brief.innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.querySelector('.brief-actions .btn:last-child');
+      navigator.clipboard.writeText(brief.innerText).then(() => {
+        const btns = document.querySelectorAll('.brief-actions .btn');
+        const btn = btns[1];
         const orig = btn.innerHTML;
         btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
         setTimeout(() => { btn.innerHTML = orig; }, 2000);
       });
     }
 
-    document.querySelectorAll('.field input').forEach(input => {
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') generateBrief();
-      });
-    });
+    function clearAll() {
+      document.getElementById('company').value = '';
+      document.getElementById('linkedinUrl').value = '';
+      document.getElementById('linkedinText').value = '';
+      document.getElementById('brief').style.display = 'none';
+      document.getElementById('brief').innerHTML = '';
+      document.getElementById('clearBtn').style.display = 'none';
+      hideError();
+    }
+
+    init();
   </script>
 </body>
 </html>
