@@ -956,10 +956,14 @@ This should include their name, headline, about section, experience, education, 
         prompt += 'Page Text Content:\n' + websiteData.textContent + '\n\n';
       } else {
         prompt += '## Company Website: ' + domain + '\n\n';
-        prompt += 'Note: The website could not be fetched directly (CORS restriction). Please use your knowledge about this company based on the domain "' + domain + '" to fill in company details.\n\n';
+        prompt += 'Note: The website could not be fetched directly. Please use your knowledge about this company based on the domain "' + domain + '" to fill in company details. Infer industry, size, tech stack, and other details from what you know about this company. If the domain is unfamiliar, make reasonable inferences from the domain name itself.\n\n';
       }
 
-      prompt += '## LinkedIn Profile Text:\n\n' + linkedinText + '\n\n';
+      if (linkedinText) {
+        prompt += '## LinkedIn Profile Text:\n\n' + linkedinText + '\n\n';
+      } else {
+        prompt += '## LinkedIn Profile Text:\n\nNo LinkedIn profile text provided. Focus the brief on the company analysis and generate prospect-agnostic insights.\n\n';
+      }
 
       if (linkedinUrl) {
         prompt += '## LinkedIn URL: ' + linkedinUrl + '\n\n';
@@ -1112,12 +1116,8 @@ Guidelines:
         document.getElementById('settingsPanel').setAttribute('open', '');
         return;
       }
-      if (!companyUrl) {
-        showError('Please enter a company website URL.');
-        return;
-      }
-      if (!linkedinText) {
-        showError('Please paste the LinkedIn profile text. Go to the prospect\'s LinkedIn page, select all text (Ctrl+A), copy, and paste it in the text area.');
+      if (!companyUrl && !linkedinText) {
+        showError('Please enter a company website URL and/or paste LinkedIn profile text.');
         return;
       }
 
@@ -1127,15 +1127,18 @@ Guidelines:
 
       let websiteData = null;
       let websiteFetched = false;
+      const fullUrl = companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl;
 
       setLoading(true, 'Fetching company website...', parseCompanyDomain(companyUrl));
 
       try {
-        const fullUrl = companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl;
-        const resp = await fetch(fullUrl, { mode: 'cors', signal: AbortSignal.timeout(10000) });
-        const html = (await resp.text()).substring(0, 200000);
-        websiteData = extractWebsiteData(html);
-        websiteFetched = true;
+        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(fullUrl);
+        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+        if (resp.ok) {
+          const html = (await resp.text()).substring(0, 200000);
+          websiteData = extractWebsiteData(html);
+          websiteFetched = true;
+        }
       } catch (e) {
         websiteFetched = false;
       }
@@ -1144,7 +1147,7 @@ Guidelines:
         'Analyzing with Claude AI...',
         websiteFetched
           ? 'Website fetched successfully. Sending to Claude for analysis.'
-          : 'Website couldn\'t be fetched (CORS). Claude will use its knowledge of this company.'
+          : 'Website couldn\'t be fetched. Claude will use its knowledge of this company.'
       );
 
       try {
@@ -1186,7 +1189,7 @@ Guidelines:
       if (d._websiteFetched) {
         sourceBadges += '<span class="source-badge ok">&#10003; Website scanned</span>';
       } else {
-        sourceBadges += '<span class="source-badge warn">&#9888; Website inferred (CORS)</span>';
+        sourceBadges += '<span class="source-badge warn">&#9888; Website inferred (not fetched)</span>';
       }
       sourceBadges += '<span class="source-badge ok">&#10003; LinkedIn profile analyzed</span>';
 
