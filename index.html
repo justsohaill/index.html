@@ -1035,21 +1035,29 @@ Guidelines:
 - If something is genuinely unknown, say so rather than fabricating.`;
 
     async function callClaudeAPI(apiKey, model, userPrompt) {
-      const resp = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: model,
-          max_tokens: 4096,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: userPrompt }]
-        })
-      });
+      let resp;
+      try {
+        resp = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: model,
+            max_tokens: 4096,
+            system: SYSTEM_PROMPT,
+            messages: [{ role: 'user', content: userPrompt }]
+          })
+        });
+      } catch (e) {
+        if (window !== window.top) {
+          throw new Error('API calls are blocked in this preview. To use this tool, save the HTML file and open it directly in your browser — right-click the page, "View Page Source" or "Save As", then open the saved file.');
+        }
+        throw new Error('Could not reach the Anthropic API. Check your internet connection and try again. (' + (e.message || 'Network error') + ')');
+      }
 
       if (!resp.ok) {
         const body = await resp.text().catch(() => '');
