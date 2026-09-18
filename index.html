@@ -782,23 +782,14 @@
 
     <div class="input-card">
       <details id="settingsPanel" class="settings-panel">
-        <summary>API Settings</summary>
-        <div class="settings-row">
-          <div class="field">
-            <label for="apiKey">Anthropic API Key</label>
-            <div class="api-key-group">
-              <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false" />
-              <button class="btn btn-secondary btn-sm" id="toggleKey" onclick="toggleKeyVisibility()">Show</button>
-            </div>
-            <div class="field-help">Stored in your browser only. Sent only to api.anthropic.com.</div>
-          </div>
-          <div class="field">
-            <label for="model">Model</label>
-            <select id="model">
-              <option value="claude-sonnet-4-20250514">Sonnet 4 (Recommended)</option>
-              <option value="claude-haiku-3-5-20241022">Haiku 3.5 (Faster)</option>
-            </select>
-          </div>
+        <summary>Settings</summary>
+        <div class="field">
+          <label for="model">Model</label>
+          <select id="model">
+            <option value="claude-sonnet-4-20250514">Sonnet 4 (Recommended)</option>
+            <option value="claude-haiku-3-5-20241022">Haiku 3.5 (Faster)</option>
+          </select>
+          <div class="field-help">API key is loaded from your .env file on the server.</div>
         </div>
       </details>
 
@@ -838,24 +829,12 @@ This should include their name, headline, about section, experience, education, 
   </div>
 
   <script>
-    const API_URL = 'https://api.anthropic.com/v1/messages';
-
     function init() {
       try {
-        const savedKey = localStorage.getItem('prospect_tool_api_key') || '';
         const savedModel = localStorage.getItem('prospect_tool_model') || 'claude-sonnet-4-20250514';
-        document.getElementById('apiKey').value = savedKey;
         document.getElementById('model').value = savedModel;
-        if (savedKey) {
-          document.getElementById('settingsPanel').removeAttribute('open');
-        } else {
-          document.getElementById('settingsPanel').setAttribute('open', '');
-        }
       } catch (e) {}
 
-      document.getElementById('apiKey').addEventListener('input', function() {
-        try { localStorage.setItem('prospect_tool_api_key', this.value); } catch (e) {}
-      });
       document.getElementById('model').addEventListener('change', function() {
         try { localStorage.setItem('prospect_tool_model', this.value); } catch (e) {}
       });
@@ -865,18 +844,6 @@ This should include their name, headline, about section, experience, education, 
           if (e.key === 'Enter') generateBrief();
         });
       });
-    }
-
-    function toggleKeyVisibility() {
-      const input = document.getElementById('apiKey');
-      const btn = document.getElementById('toggleKey');
-      if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = 'Hide';
-      } else {
-        input.type = 'password';
-        btn.textContent = 'Show';
-      }
     }
 
     function showError(msg) {
@@ -1034,40 +1001,29 @@ Guidelines:
 - fitScores: Your honest assessment. fitScore = how well they match a typical B2B buyer profile. urgencyScore = likelihood they're actively evaluating solutions. accessibilityScore = how reachable they appear.
 - If something is genuinely unknown, say so rather than fabricating.`;
 
-    async function callClaudeAPI(apiKey, model, userPrompt) {
+    async function callClaudeAPI(model, userPrompt) {
       let resp;
       try {
-        resp = await fetch(API_URL, {
+        resp = await fetch('/api/analyze', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: model,
-            max_tokens: 4096,
             system: SYSTEM_PROMPT,
             messages: [{ role: 'user', content: userPrompt }]
           })
         });
       } catch (e) {
-        if (window !== window.top) {
-          throw new Error('API calls are blocked in this preview. To use this tool, save the HTML file and open it directly in your browser — right-click the page, "View Page Source" or "Save As", then open the saved file.');
-        }
-        throw new Error('Could not reach the Anthropic API. Check your internet connection and try again. (' + (e.message || 'Network error') + ')');
+        throw new Error('Could not reach the server. Make sure the server is running (npm start). ' + (e.message || ''));
       }
 
       if (!resp.ok) {
-        const body = await resp.text().catch(() => '');
-        if (resp.status === 401) throw new Error('Invalid API key. Check your Anthropic API key in the settings above.');
+        const data = await resp.json().catch(() => ({}));
+        const msg = data.error && data.error.message || data.error || 'API error (' + resp.status + ')';
+        if (resp.status === 500 && String(msg).includes('.env')) throw new Error(msg);
+        if (resp.status === 401) throw new Error('Invalid API key. Check your ANTHROPIC_API_KEY in the .env file.');
         if (resp.status === 429) throw new Error('Rate limited. Wait a moment and try again.');
-        if (resp.status === 400) {
-          const msg = body.includes('credit') ? 'Your API account may be out of credits.' : 'Bad request: ' + body.substring(0, 200);
-          throw new Error(msg);
-        }
-        throw new Error('API error (' + resp.status + '): ' + body.substring(0, 200));
+        throw new Error(String(msg).substring(0, 300));
       }
 
       const data = await resp.json();
@@ -1113,17 +1069,11 @@ Guidelines:
 
     async function generateBrief() {
       hideError();
-      const apiKey = document.getElementById('apiKey').value.trim();
       const companyUrl = document.getElementById('company').value.trim();
       const linkedinText = document.getElementById('linkedinText').value.trim();
       const linkedinUrl = document.getElementById('linkedinUrl').value.trim();
       const model = document.getElementById('model').value;
 
-      if (!apiKey) {
-        showError('Please enter your Anthropic API key. Open <strong>API Settings</strong> above.');
-        document.getElementById('settingsPanel').setAttribute('open', '');
-        return;
-      }
       if (!companyUrl && !linkedinText) {
         showError('Please enter a company website URL and/or paste LinkedIn profile text.');
         return;
@@ -1135,32 +1085,37 @@ Guidelines:
 
       let websiteData = null;
       let websiteFetched = false;
-      const fullUrl = companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl;
 
-      setLoading(true, 'Fetching company website...', parseCompanyDomain(companyUrl));
+      if (companyUrl) {
+        const fullUrl = companyUrl.startsWith('http') ? companyUrl : 'https://' + companyUrl;
+        setLoading(true, 'Fetching company website...', parseCompanyDomain(companyUrl));
 
-      try {
-        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(fullUrl);
-        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
-        if (resp.ok) {
-          const html = (await resp.text()).substring(0, 200000);
-          websiteData = extractWebsiteData(html);
-          websiteFetched = true;
+        try {
+          const resp = await fetch('/api/fetch-site', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: fullUrl })
+          });
+          const data = await resp.json();
+          if (data.html) {
+            websiteData = extractWebsiteData(data.html);
+            websiteFetched = true;
+          }
+        } catch (e) {
+          websiteFetched = false;
         }
-      } catch (e) {
-        websiteFetched = false;
       }
 
       setLoading(true,
         'Analyzing with Claude AI...',
         websiteFetched
           ? 'Website fetched successfully. Sending to Claude for analysis.'
-          : 'Website couldn\'t be fetched. Claude will use its knowledge of this company.'
+          : 'Sending to Claude for analysis...'
       );
 
       try {
         const userPrompt = buildPrompt(websiteData, linkedinText, companyUrl, linkedinUrl);
-        const responseText = await callClaudeAPI(apiKey, model, userPrompt);
+        const responseText = await callClaudeAPI(model, userPrompt);
         const d = parseJSON(responseText);
 
         d._websiteFetched = websiteFetched;
